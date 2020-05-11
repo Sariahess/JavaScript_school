@@ -56,7 +56,17 @@ function searchStreet(query) {
             return busStopArr;
           }
         })
-        
+        .then(arr => {
+          arr.forEach(stopNum => {
+            fetch(`https://api.winnipegtransit.com/v3/stops/${stopNum}/schedule.json?max-results-per-route=2&api-key=${myAPI}`)
+              .then(resp => {
+                return resp.json();
+              })
+              .then(json => {
+                console.log(json["stop-schedule"]);
+                });
+              });
+        })
         .catch(err => {
           alert(err);
         });
