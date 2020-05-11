@@ -50,7 +50,25 @@ function searchStreet(query) {
             busStopArr.push(stop.key);
           });
 
-          console.log(busStopArr);
+          if (busStopArr.length === 0) {
+            throw new Error(`There are no bus stops on this street`);
+          } else {
+            return busStopArr;
+          }
+        })
+        .then(arr => {
+          arr.forEach(stopNum => {
+            fetch(`https://api.winnipegtransit.com/v3/stops/${stopNum}/schedule.json?max-results-per-route=2&api-key=${myAPI}`)
+              .then(resp => {
+                return resp.json();
+              })
+              .then(json => {
+                console.log(json["stop-schedule"]);
+                });
+              });
+        })
+        .catch(err => {
+          alert(err);
         });
     }
   })
