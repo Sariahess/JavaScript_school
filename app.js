@@ -50,7 +50,15 @@ function searchStreet(query) {
             busStopArr.push(stop.key);
           });
 
-          console.log(busStopArr);
+          if (busStopArr.length === 0) {
+            throw new Error(`There are no bus stops on this street`);
+          } else {
+            return busStopArr;
+          }
+        })
+        
+        .catch(err => {
+          alert(err);
         });
     }
   })
