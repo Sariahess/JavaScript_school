@@ -25,6 +25,8 @@ function searchStreet(query) {
       busStopList.insertAdjacentHTML(`beforeend`, 
         `<a href="#" data-street-key="${stop.key}">${stop.name}</a>`
       );
+
+      console.log(stop);
     });
 
     if (busStopList.innerHTML === ``) {
@@ -35,12 +37,25 @@ function searchStreet(query) {
   })
   .then(() => {
     busStopList.onclick = function(eve) {
-      const busStopKey = eve.target.dataset.streetKey;
-      console.log(busStopKey);
+      const streetKey = eve.target.dataset.streetKey;
+      
+      fetch(`https://api.winnipegtransit.com/v3/stops.json?street=${streetKey}&api-key=${myAPI}`)
+        .then(resp => {
+          if (resp.ok) {
+            return resp.json();
+          } else {
+            throw new Error(errMessage);
+          }
+        })
+        .then(json => {
+          console.log(json);
+        });
     }
-      //stops/${key}/schedule?max-results-per-route=2
   })
   .catch((err) => {
     alert(err);
   });
 }
+
+
+// https://api.winnipegtransit.com/v3/stops.json?street=${   }&api-key=${myAPI}
