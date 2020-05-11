@@ -58,24 +58,33 @@ function searchStreet(query) {
         })
         .then(arr => {
           arr.forEach(stopNum => {
-            fetch(`https://api.winnipegtransit.com/v3/stops/${stopNum}/schedule.json?max-results-per-route=2&api-key=${myAPI}`)
+            fetch(`https://api.winnipegtransit.com/v3/stops/${stopNum}/schedule.json?max-results-per-route=1&api-key=${myAPI}`)
               .then(resp => {
                 return resp.json();
               })
               .then(json => {
-                console.log(json["stop-schedule"]);
-                });
+                return json["stop-schedule"];
+              })
+              .then(schedule => {
+                display(schedule);
               });
+          });
         })
         .catch(err => {
           alert(err);
         });
     }
-  })
-  .catch((err) => {
-    alert(err);
   });
 }
 
+function display(obj) {
+  const tbody = document.querySelector(`tbody`);
 
-// https://api.winnipegtransit.com/v3/stops.json?street=${   }&api-key=${myAPI}
+  tbody.insertAdjacentHTML(`beforeend`, `
+    <td>${obj.stop.name}</td>
+    <td>${obj.stop["cross-street"].name}</td>
+    <td>${obj.stop.direction}</td>
+    <td>74</td>
+    <td>02:25 PM</td>
+  `);
+}
