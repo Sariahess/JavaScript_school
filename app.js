@@ -1,5 +1,6 @@
 const streetSearch = document.querySelector(`form`);
 const myAPI = `VPiUgdvsNWWxzgQ7bx`;
+const busStop = document.querySelector(`.streets`);  
 
 streetSearch.onsubmit = function(eve) {
   const streetName = eve.target.querySelector(`input[type=text]`);
@@ -14,16 +15,22 @@ function searchStreet(query) {
     if (resp.ok) {
       return resp.json();
     } else {
-      throw new Error(errMessage);
+      throw new Error(errorMessage);
     }
   })
   .then(json => {
+    busStop.innerHTML = ``;
+
     json.streets.forEach(stop => {
-      console.log(stop);
-      console.log(stop.name);
+      getBusStop(stop);
     });
   })
   .catch(err => {
-    alert(`${err}`);
+    getBusStop(`${err}`);
   });
+}
+
+function getBusStop(query) {
+  busStop.insertAdjacentHTML(`beforeend`, 
+    `<a href="#" data-street-key="${query.key}">${query.name}</a>`);
 }
