@@ -41,14 +41,16 @@ function searchStreet(query) {
       
       fetch(`https://api.winnipegtransit.com/v3/stops.json?street=${streetKey}&api-key=${myAPI}`)
         .then(resp => {
-          if (resp.ok) {
-            return resp.json();
-          } else {
-            throw new Error(errMessage);
-          }
+          return resp.json();
         })
-        .then(json => {
-          console.log(json);
+        .then(json => {            
+          let busStopArr = [];
+
+          json.stops.forEach(stop => {
+            busStopArr.push(stop.key);
+          });
+
+          console.log(busStopArr);
         });
     }
   })
