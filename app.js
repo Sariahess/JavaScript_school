@@ -30,8 +30,16 @@ function searchStreet(query) {
     if (busStopList.innerHTML === ``) {
       busStopList.innerHTML = `No streets found`;
     }
+
+    return json.streets;
   })
-  .then()
+  .then(() => {
+    busStopList.onclick = function(eve) {
+      const busStopKey = eve.target.dataset.streetKey;
+      console.log(busStopKey);
+    }
+      //stops/${key}/schedule?max-results-per-route=2
+  })
   .catch((err) => {
     alert(err);
   });
