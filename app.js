@@ -3,7 +3,6 @@ const myAPI = `VPiUgdvsNWWxzgQ7bx`;
 const busStopList = document.querySelector(`.streets`);
 const tbody = document.querySelector(`tbody`);
 
-
 streetSearch.onsubmit = function(eve) {
   const streetName = eve.target.querySelector(`input[type=text]`);
   searchStreet(streetName.value);
@@ -75,7 +74,7 @@ function searchStreet(query) {
 }
 
 function display(obj) {
-  const time = obj["route-schedules"][0]["scheduled-stops"][0].times.departure.scheduled;
+  const time = new Date(obj["route-schedules"][0]["scheduled-stops"][0].times.departure.scheduled);
 
   tbody.insertAdjacentHTML(`beforeend`, `
     <tr>
@@ -83,7 +82,22 @@ function display(obj) {
       <td>${obj.stop["cross-street"].name}</td>
       <td>${obj.stop.direction}</td>
       <td>${obj["route-schedules"][0].route.number}</td>
-      <td>${time.slice(time.length - 8, time.length - 3)}</td>
+      <td>${timeConverter(time)}</td>
     </tr>
   `);
+}
+
+function timeConverter(timeElement) {
+  const hour = timeElement.getHours();
+  const minute = timeElement.getMinutes();
+
+  function lengthConverter(num) {
+    if (num < 10) {
+      return `0${num}`;
+    } else {
+      return num;
+    }
+  }
+
+  return hour > 12 ? `${lengthConverter(hour - 12)}:${lengthConverter(minute)} PM` : `${lengthConverter(hour - 12)}:${lengthConverter(minute)} AM`
 }
