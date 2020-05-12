@@ -1,6 +1,7 @@
 const streetSearch = document.querySelector(`form`);
 const myAPI = `VPiUgdvsNWWxzgQ7bx`;
 const busStopList = document.querySelector(`.streets`);
+const tbody = document.querySelector(`tbody`);
 
 streetSearch.onsubmit = function(eve) {
   const streetName = eve.target.querySelector(`input[type=text]`);
@@ -25,8 +26,6 @@ function searchStreet(query) {
       busStopList.insertAdjacentHTML(`beforeend`, 
         `<a href="#" data-street-key="${stop.key}">${stop.name}</a>`
       );
-
-      console.log(stop);
     });
 
     if (busStopList.innerHTML === ``) {
@@ -58,24 +57,47 @@ function searchStreet(query) {
         })
         .then(arr => {
           arr.forEach(stopNum => {
-            fetch(`https://api.winnipegtransit.com/v3/stops/${stopNum}/schedule.json?max-results-per-route=2&api-key=${myAPI}`)
+            fetch(`https://api.winnipegtransit.com/v3/stops/${stopNum}/schedule.json?max-results-per-route=1&api-key=${myAPI}`)
               .then(resp => {
                 return resp.json();
               })
               .then(json => {
-                console.log(json["stop-schedule"]);
-                });
+                display(json["stop-schedule"]);
               });
+          });
         })
         .catch(err => {
           alert(err);
         });
     }
-  })
-  .catch((err) => {
-    alert(err);
   });
 }
 
+function display(obj) {
+  const time = new Date(obj["route-schedules"][0]["scheduled-stops"][0].times.departure.scheduled);
 
-// https://api.winnipegtransit.com/v3/stops.json?street=${   }&api-key=${myAPI}
+  tbody.insertAdjacentHTML(`beforeend`, `
+    <tr>
+      <td>${obj.stop.name}</td>
+      <td>${obj.stop["cross-street"].name}</td>
+      <td>${obj.stop.direction}</td>
+      <td>${obj["route-schedules"][0].route.number}</td>
+      <td>${timeConverter(time)}</td>
+    </tr>
+  `);
+}
+
+function timeConverter(timeElement) {
+  const hour = timeElement.getHours();
+  const minute = timeElement.getMinutes();
+
+  function lengthConverter(num) {
+    if (num < 10) {
+      return `0${num}`;
+    } else {
+      return num;
+    }
+  }
+
+  return hour > 12 ? `${lengthConverter(hour - 12)}:${lengthConverter(minute)} PM` : `${lengthConverter(hour - 12)}:${lengthConverter(minute)} AM`
+}
