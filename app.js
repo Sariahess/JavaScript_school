@@ -1,6 +1,8 @@
 const streetSearch = document.querySelector(`form`);
 const myAPI = `VPiUgdvsNWWxzgQ7bx`;
 const busStopList = document.querySelector(`.streets`);
+const tbody = document.querySelector(`tbody`);
+const street = document.querySelector(`#street-name`);
 
 streetSearch.onsubmit = function(eve) {
   const streetName = eve.target.querySelector(`input[type=text]`);
@@ -14,19 +16,21 @@ function searchStreet(query) {
   .then(resp => {
     if (resp.ok) {
       return resp.json();
-    } else {
-      throw new Error(errMessage);
     }
   })
   .then(json => {
-    busStopList.innerHTML = ``;
+    function clearDisplay(arr) {
+      for (const each of arr) {
+        each.innerHTML = ``;
+      }
+    }
 
+    clearDisplay([busStopList, tbody, street]);
+    
     json.streets.forEach(stop => {
       busStopList.insertAdjacentHTML(`beforeend`, 
         `<a href="#" data-street-key="${stop.key}">${stop.name}</a>`
       );
-
-      console.log(stop);
     });
 
     if (busStopList.innerHTML === ``) {
@@ -38,24 +42,70 @@ function searchStreet(query) {
   .then(() => {
     busStopList.onclick = function(eve) {
       const streetKey = eve.target.dataset.streetKey;
+      street.innerHTML = `Displaying results for ${eve.target.innerHTML}`;
       
       fetch(`https://api.winnipegtransit.com/v3/stops.json?street=${streetKey}&api-key=${myAPI}`)
         .then(resp => {
-          if (resp.ok) {
-            return resp.json();
+          return resp.json();
+        })
+        .then(json => {            
+          let busStopArr = [];
+
+          json.stops.forEach(stop => {
+            busStopArr.push(stop.key);
+          });
+
+          if (busStopArr.length === 0) {
+            throw new Error(`There are no bus stops on this street`);
           } else {
-            throw new Error(errMessage);
+            return busStopArr;
           }
         })
-        .then(json => {
-          console.log(json);
+        .then(arr => {
+          arr.forEach(stopNum => {
+            fetch(`https://api.winnipegtransit.com/v3/stops/${stopNum}/schedule.json?max-results-per-route=1&api-key=${myAPI}`)
+              .then(resp => {
+                return resp.json();
+              })
+              .then(json => {
+                display(json["stop-schedule"]);
+              });
+          });
+        })
+        .catch(err => {
+          alert(err);
         });
     }
-  })
-  .catch((err) => {
-    alert(err);
   });
 }
 
+function display(obj) {
+  const time = new Date(obj["route-schedules"][0]["scheduled-stops"][0].times.departure.scheduled);
 
-// https://api.winnipegtransit.com/v3/stops.json?street=${   }&api-key=${myAPI}
+  tbody.insertAdjacentHTML(`beforeend`, `
+    <tr>
+      <td>${obj.stop.name}</td>
+      <td>${obj.stop["cross-street"].name}</td>
+      <td>${obj.stop.direction}</td>
+      <td>${obj["route-schedules"][0].route.number}</td>
+      <td>${timeConverter(time)}</td>
+    </tr>
+  `);
+}
+
+function timeConverter(timeElement) {
+  // trim the time expression
+  const hour = timeElement.getHours();
+  const minute = timeElement.getMinutes();
+
+  // put 0 on the lefthand side if it's a 1-digit number.
+  function lengthConverter(num) {
+    if (num < 10) {
+      return `0${num}`;
+    } else {
+      return num;
+    }
+  }
+
+  return hour > 12 ? `${lengthConverter(hour - 12)}:${lengthConverter(minute)} PM` : `${lengthConverter(hour - 12)}:${lengthConverter(minute)} AM`
+}
