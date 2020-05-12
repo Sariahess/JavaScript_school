@@ -59,12 +59,14 @@ busStopList.onclick = function(eve) {
     .then(arr => {
       arr.forEach(stopNum => {
         let promisesArr = [];
+
         fetch(`https://api.winnipegtransit.com/v3/stops/${stopNum}/schedule.json?max-results-per-route=2&?usage=long&api-key=${myAPI}`)
           .then(resp => {
             return resp.json();
           })
           .then(json => {
             promisesArr.push(json);
+            
             Promise.all(promisesArr).then(function() {
               display(json["stop-schedule"]);
             });
