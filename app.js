@@ -1,6 +1,8 @@
 const streetSearch = document.querySelector(`form`);
 const myAPI = `VPiUgdvsNWWxzgQ7bx`;
 const busStopList = document.querySelector(`.streets`);
+const tbody = document.querySelector(`tbody`);
+
 
 streetSearch.onsubmit = function(eve) {
   const streetName = eve.target.querySelector(`input[type=text]`);
@@ -25,8 +27,6 @@ function searchStreet(query) {
       busStopList.insertAdjacentHTML(`beforeend`, 
         `<a href="#" data-street-key="${stop.key}">${stop.name}</a>`
       );
-
-      console.log(stop);
     });
 
     if (busStopList.innerHTML === ``) {
@@ -63,10 +63,7 @@ function searchStreet(query) {
                 return resp.json();
               })
               .then(json => {
-                return json["stop-schedule"];
-              })
-              .then(schedule => {
-                display(schedule);
+                display(json["stop-schedule"]);
               });
           });
         })
@@ -78,13 +75,15 @@ function searchStreet(query) {
 }
 
 function display(obj) {
-  const tbody = document.querySelector(`tbody`);
+  const time = obj["route-schedules"][0]["scheduled-stops"][0].times.departure.scheduled;
 
   tbody.insertAdjacentHTML(`beforeend`, `
-    <td>${obj.stop.name}</td>
-    <td>${obj.stop["cross-street"].name}</td>
-    <td>${obj.stop.direction}</td>
-    <td>74</td>
-    <td>02:25 PM</td>
+    <tr>
+      <td>${obj.stop.name}</td>
+      <td>${obj.stop["cross-street"].name}</td>
+      <td>${obj.stop.direction}</td>
+      <td>${obj["route-schedules"][0].route.number}</td>
+      <td>${time.slice(time.length - 8, time.length - 3)}</td>
+    </tr>
   `);
 }
