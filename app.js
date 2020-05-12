@@ -29,7 +29,7 @@ function searchStreet(query) {
       );
     });
 
-    if (busStopList.innerHTML === ``) {
+    if (json.streets.length === 0) {
       busStopList.innerHTML = `No streets found`;
     }
   })
@@ -38,7 +38,7 @@ function searchStreet(query) {
 busStopList.onclick = function(eve) {
   const streetKey = eve.target.dataset.streetKey;
   street.innerHTML = `Displaying results for ${eve.target.innerHTML}`;
-      
+  
   fetch(`https://api.winnipegtransit.com/v3/stops.json?street=${streetKey}&api-key=${myAPI}`)
     .then(resp => {
       return resp.json();
@@ -58,12 +58,16 @@ busStopList.onclick = function(eve) {
     })
     .then(arr => {
       arr.forEach(stopNum => {
+        let promisesArr = [];
         fetch(`https://api.winnipegtransit.com/v3/stops/${stopNum}/schedule.json?max-results-per-route=2&?usage=long&api-key=${myAPI}`)
           .then(resp => {
             return resp.json();
           })
           .then(json => {
-            display(json["stop-schedule"]);
+            promisesArr.push(json);
+            Promise.all(promisesArr).then(function() {
+              display(json["stop-schedule"]);
+            });
           });
       });
     })
@@ -95,8 +99,8 @@ function lengthConverter(num) {
   }
 }
 
+// trim the time expression
 function timeConverter(timeElement) {
-  // trim the time expression
   const hour = timeElement.getHours();
   const minute = timeElement.getMinutes();
 
