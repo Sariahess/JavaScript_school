@@ -29,7 +29,7 @@ function searchStreet(query) {
       );
     });
 
-    if (busStopList.innerHTML === ``) {
+    if (json.streets.length === 0) {
       busStopList.innerHTML = `No streets found`;
     }
   })
@@ -95,8 +95,8 @@ function lengthConverter(num) {
   }
 }
 
+// trim the time expression
 function timeConverter(timeElement) {
-  // trim the time expression
   const hour = timeElement.getHours();
   const minute = timeElement.getMinutes();
 
