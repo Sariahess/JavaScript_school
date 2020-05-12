@@ -2,6 +2,7 @@ const streetSearch = document.querySelector(`form`);
 const myAPI = `VPiUgdvsNWWxzgQ7bx`;
 const busStopList = document.querySelector(`.streets`);
 const tbody = document.querySelector(`tbody`);
+const street = document.querySelector(`#street-name`);
 
 streetSearch.onsubmit = function(eve) {
   const streetName = eve.target.querySelector(`input[type=text]`);
@@ -15,13 +16,17 @@ function searchStreet(query) {
   .then(resp => {
     if (resp.ok) {
       return resp.json();
-    } else {
-      throw new Error(errMessage);
     }
   })
   .then(json => {
-    busStopList.innerHTML = ``;
+    function clearDisplay(arr) {
+      for (const each of arr) {
+        each.innerHTML = ``;
+      }
+    }
 
+    clearDisplay([busStopList, tbody, street]);
+    
     json.streets.forEach(stop => {
       busStopList.insertAdjacentHTML(`beforeend`, 
         `<a href="#" data-street-key="${stop.key}">${stop.name}</a>`
@@ -37,6 +42,7 @@ function searchStreet(query) {
   .then(() => {
     busStopList.onclick = function(eve) {
       const streetKey = eve.target.dataset.streetKey;
+      street.innerHTML = `Displaying results for ${eve.target.innerHTML}`;
       
       fetch(`https://api.winnipegtransit.com/v3/stops.json?street=${streetKey}&api-key=${myAPI}`)
         .then(resp => {
@@ -88,9 +94,11 @@ function display(obj) {
 }
 
 function timeConverter(timeElement) {
+  // trim the time expression
   const hour = timeElement.getHours();
   const minute = timeElement.getMinutes();
 
+  // put 0 on the lefthand side if it's a 1-digit number.
   function lengthConverter(num) {
     if (num < 10) {
       return `0${num}`;
