@@ -1,4 +1,3 @@
-# JavaScript_school
-MITT SD front-end classes materials
+# bus_schedule_simple version 1.0
 
-I have deleted all the branches right after each successful merge.
+Deleted all the branches right after each successful merge.
