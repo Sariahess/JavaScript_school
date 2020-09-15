@@ -7,8 +7,12 @@
 - as long as some letters of special characters (like ' or .) are together, the search box accepts and reads SPACE key 
 - if there cannot be found any results regarding the search letters, 'No Results' shows up instead of lists of places
 
+
+
 2. Click on the found lists to view if there are any bus-stops in the roads/places
 - "Pembina Highway" or "Scurfield Boulevard" shows numerous results of bus-stops and info
 - if there cannot be found any bus-stops, an error message "Error: There are no bus stops on this street" shows as pop-up (press OK to clear the message)
+
+
 
 3. On the right to the search bar, the results show up
